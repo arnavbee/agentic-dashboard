@@ -15,7 +15,11 @@ const ARXIV_COMBINED_QUERY = 'cat:cs.MA OR (cat:cs.AI AND (ti:agent OR ti:agenti
 const RSS_FEEDS = [
   { name: 'OpenAI Newsroom', url: 'https://openai.com/news/rss.xml' },
   { name: 'Lil\'Log Research', url: 'https://lilianweng.github.io/posts/index.xml' },
-  { name: 'Google AI Blog', url: 'https://blog.google/technology/ai/rss/' }
+  { name: 'Google AI Blog', url: 'https://blog.google/technology/ai/rss/' },
+  { name: 'LangChain Blog', url: 'https://blog.langchain.dev/rss/' },
+  { name: 'Microsoft Research', url: 'https://www.microsoft.com/en-us/research/blog/feed/' },
+  { name: 'Berkeley BAIR Blog', url: 'https://bair.berkeley.edu/blog/feed.xml' },
+  { name: 'Stanford SAIL Blog', url: 'https://ai.stanford.edu/blog/feed.xml' }
 ];
 
 // Curated academic library used as fallback if arXiv rate limits or fails
