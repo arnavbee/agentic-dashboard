@@ -213,6 +213,10 @@ function renderFeedList() {
       return `<span class="paper-tag ${tc}">${lbl}</span>`;
     }).join('');
 
+    // Check if paper contains self-improving agent context to append as an addition tag (not primary identity)
+    const isSelfImproving = (item.title + ' ' + item.summary).toLowerCase().match(/self-improving|self-improvement|self-correction/);
+    const selfImprovingTag = isSelfImproving ? `<span class="paper-tag tag-ai" style="border-color: var(--cyan); background: var(--cyan-dim); color: var(--cyan)">Self-Improving</span>` : '';
+
     const uniqueId = item.arxivId || item.link;
     const isSelected = uniqueId === selectedId;
 
@@ -224,6 +228,7 @@ function renderFeedList() {
           <span class="paper-id">${item.arxivId ? `arXiv:${item.arxivId}` : item.source.toUpperCase()}</span>
           <span class="paper-tag ${tagClass}">${label}</span>
           ${extraTagsHtml}
+          ${selfImprovingTag}
           <span class="paper-date">${formatDateRelative(item.published)}</span>
         </div>
         <div class="paper-title">${escapeHtml(item.title)}</div>
@@ -253,10 +258,16 @@ function selectFeedItem(uniqueId) {
   if (!item) return;
 
   const detailContainer = document.getElementById('detail-content');
-  const tagsHtml = item.cats.filter(c => CAT_TAGS[c]).map(c => {
+  let tagsHtml = item.cats.filter(c => CAT_TAGS[c]).map(c => {
     const [cls, lbl] = CAT_TAGS[c];
     return `<span class="paper-tag ${cls}">${lbl}</span>`;
   }).join('');
+
+  // Check if paper contains self-improving agent context to append as an addition tag (not primary identity)
+  const isSelfImproving = (item.title + ' ' + item.summary).toLowerCase().match(/self-improving|self-improvement|self-correction/);
+  if (isSelfImproving) {
+    tagsHtml += `<span class="paper-tag tag-ai" style="border-color: var(--cyan); background: var(--cyan-dim); color: var(--cyan)">Self-Improving</span>`;
+  }
 
   const pdfButtonHtml = item.pdfLink 
     ? `<a href="${item.pdfLink}" target="_blank" class="abs-btn">↓ DOWNLOAD PDF SPEC</a>` 
