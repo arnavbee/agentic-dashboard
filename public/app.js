@@ -189,6 +189,9 @@ function applyFilters() {
   document.getElementById('stat-filtered').textContent = `Showing ${filteredFeedItems.length} matching`;
 
   renderFeedList();
+  if (activeView === 'chart') {
+    renderTrendChart();
+  }
 }
 
 // Render feed list
@@ -403,3 +406,199 @@ function resetCountdown() {
 document.addEventListener('DOMContentLoaded', () => {
   fetchFeedData(false);
 });
+
+// Chart View & Data Controllers
+let activeView = 'feed';
+let trendChartInstance = null;
+
+const keywordsList = ['reasoning', 'planning', 'tool', 'multi-agent', 'memory', 'safety', 'self-improving'];
+const keywordLabels = {
+  'reasoning': 'Reasoning',
+  'planning': 'Planning',
+  'tool': 'Tool-Use',
+  'multi-agent': 'Multi-Agent',
+  'memory': 'Memory',
+  'safety': 'Safety',
+  'self-improving': 'Self-Improving'
+};
+
+function switchView(view) {
+  activeView = view;
+  const feedContent = document.getElementById('feed-content');
+  const chartContainer = document.getElementById('chart-view-container');
+  const feedTabBtn = document.getElementById('tab-btn-feed');
+  const chartTabBtn = document.getElementById('tab-btn-chart');
+
+  if (view === 'feed') {
+    feedContent.style.display = 'block';
+    chartContainer.style.display = 'none';
+    feedTabBtn.classList.add('active');
+    chartTabBtn.classList.remove('active');
+  } else {
+    feedContent.style.display = 'none';
+    chartContainer.style.display = 'flex';
+    feedTabBtn.classList.remove('active');
+    chartTabBtn.classList.add('active');
+    renderTrendChart();
+  }
+}
+
+function getMonday(d) {
+  d = new Date(d);
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Adjust when day is Sunday
+  const monday = new Date(d.setDate(diff));
+  monday.setHours(0, 0, 0, 0);
+  return monday;
+}
+
+function generateChartData() {
+  const weeksMap = {};
+
+  filteredFeedItems.forEach(item => {
+    const pubDate = new Date(item.published);
+    if (isNaN(pubDate)) return;
+    const mon = getMonday(pubDate);
+    const monKey = mon.toISOString().split('T')[0]; // YYYY-MM-DD
+
+    if (!weeksMap[monKey]) {
+      weeksMap[monKey] = {
+        date: mon,
+        counts: {
+          'reasoning': 0,
+          'planning': 0,
+          'tool': 0,
+          'multi-agent': 0,
+          'memory': 0,
+          'safety': 0,
+          'self-improving': 0
+        }
+      };
+    }
+
+    const matchText = (item.title + ' ' + item.summary).toLowerCase();
+    keywordsList.forEach(kw => {
+      if (matchText.includes(kw)) {
+        weeksMap[monKey].counts[kw]++;
+      }
+    });
+  });
+
+  // Sort weeks chronologically
+  const sortedWeekKeys = Object.keys(weeksMap).sort();
+  
+  // Format labels: "May 12"
+  const labels = sortedWeekKeys.map(k => {
+    const d = weeksMap[k].date;
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  });
+
+  const datasets = {
+    'reasoning': [],
+    'planning': [],
+    'tool': [],
+    'multi-agent': [],
+    'memory': [],
+    'safety': [],
+    'self-improving': []
+  };
+
+  sortedWeekKeys.forEach(k => {
+    const counts = weeksMap[k].counts;
+    keywordsList.forEach(kw => {
+      datasets[kw].push(counts[kw]);
+    });
+  });
+
+  return { labels, datasets };
+}
+
+function renderTrendChart() {
+  const canvas = document.getElementById('trendChart');
+  if (!canvas) return;
+
+  const { labels, datasets } = generateChartData();
+
+  if (trendChartInstance) {
+    trendChartInstance.destroy();
+  }
+
+  const datasetColors = {
+    'reasoning': '#b388ff',      // Violet
+    'planning': '#00e5ff',       // Cyan
+    'tool': '#8c9eff',           // Indigo
+    'multi-agent': '#ff1744',    // Crimson
+    'memory': '#ff4081',         // Magenta
+    'safety': '#eceff1',         // Silver/White
+    'self-improving': '#ab47bc'   // Deep Purple
+  };
+
+  const chartDatasets = Object.keys(datasetColors).map(kw => {
+    return {
+      label: keywordLabels[kw],
+      data: datasets[kw] || [],
+      borderColor: datasetColors[kw],
+      backgroundColor: datasetColors[kw] + '15',
+      borderWidth: 2,
+      tension: 0.3,
+      pointRadius: 4,
+      pointHoverRadius: 6,
+      fill: false
+    };
+  });
+
+  trendChartInstance = new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: chartDatasets
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'top',
+          labels: {
+            color: '#e8e5f0',
+            font: {
+              family: 'IBM Plex Mono',
+              size: 10
+            }
+          }
+        },
+        tooltip: {
+          backgroundColor: '#0c0a13',
+          titleColor: '#b388ff',
+          bodyColor: '#e8e5f0',
+          titleFont: { family: 'IBM Plex Mono' },
+          bodyFont: { family: 'IBM Plex Mono' },
+          borderColor: '#1a142e',
+          borderWidth: 1
+        }
+      },
+      scales: {
+        x: {
+          grid: {
+            color: 'rgba(49, 27, 94, 0.15)'
+          },
+          ticks: {
+            color: '#9c97b8',
+            font: { family: 'IBM Plex Mono', size: 9 }
+          }
+        },
+        y: {
+          grid: {
+            color: 'rgba(49, 27, 94, 0.15)'
+          },
+          ticks: {
+            color: '#9c97b8',
+            precision: 0,
+            font: { family: 'IBM Plex Mono', size: 9 }
+          }
+        }
+      }
+    }
+  });
+}
+
