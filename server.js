@@ -9,8 +9,8 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Combined arXiv query for Agents and Agentic systems across AI, Multi-agent, NLP, ML, and SE
-const ARXIV_COMBINED_QUERY = 'cat:cs.MA OR (cat:cs.AI AND (ti:agent OR ti:agentic OR ti:agents OR ti:"self-improving" OR ti:"self-improvement" OR ti:"self-correction")) OR (cat:cs.CL AND (ti:agent OR ti:agentic OR ti:agents OR ti:"self-improving" OR ti:"self-improvement" OR ti:"self-correction")) OR (cat:cs.LG AND (ti:agent OR ti:agentic OR ti:agents OR ti:"self-improving" OR ti:"self-improvement" OR ti:"self-correction")) OR (cat:cs.SE AND (ti:agent OR ti:agentic OR ti:agents OR ti:"self-improving" OR ti:"self-improvement" OR ti:"self-correction"))';
+// Combined arXiv query for Agents and Agentic systems across AI, Multi-agent, NLP, ML, and SE (searching title and abstract)
+const ARXIV_COMBINED_QUERY = 'cat:cs.MA OR ((cat:cs.AI OR cat:cs.CL OR cat:cs.LG OR cat:cs.SE) AND (ti:agent OR abs:agent OR ti:agents OR abs:agents OR ti:agentic OR abs:agentic OR ti:"self-improving" OR abs:"self-improving" OR ti:"self-improvement" OR abs:"self-improvement" OR ti:"self-correction" OR abs:"self-correction"))';
 
 const RSS_FEEDS = [
   { name: 'OpenAI Newsroom', url: 'https://openai.com/news/rss.xml' },
@@ -336,9 +336,15 @@ app.get('/api/feed', async (req, res) => {
   
   console.log('Fetching fresh Agentic AI feeds...');
   try {
-    // 1. Fetch arXiv papers
+    // 1. Fetch arXiv papers with 1-year date range and title/abstract search
     const arxivPromise = (async () => {
-      const url = `https://export.arxiv.org/api/query?search_query=${encodeURIComponent(ARXIV_COMBINED_QUERY)}&start=0&max_results=100&sortBy=submittedDate&sortOrder=descending`;
+      const now = new Date();
+      const oneYearAgo = new Date();
+      oneYearAgo.setFullYear(now.getFullYear() - 1);
+      const formatDate = (d) => `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}0000`;
+      const dateQuery = ` AND submittedDate:[${formatDate(oneYearAgo)} TO ${formatDate(now)}]`;
+      const fullQuery = `(${ARXIV_COMBINED_QUERY})${dateQuery}`;
+      const url = `https://export.arxiv.org/api/query?search_query=${encodeURIComponent(fullQuery)}&start=0&max_results=150&sortBy=submittedDate&sortOrder=descending`;
       try {
         const xmlText = await fetchWithRetry(url);
         const parsed = await parseArxivXML(xmlText);
