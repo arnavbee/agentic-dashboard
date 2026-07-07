@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agentic AI — Research Dashboard</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;1,300&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- CSS Stylesheet -->
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <div class="logo-mark">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <circle cx="8" cy="8" r="3.5" stroke="#b388ff" stroke-width="1.5"/>
+          <rect x="5.5" y="5.5" width="5" height="5" rx="0.5" stroke="#00e5ff" stroke-width="1"/>
+          <path d="M8 0v2M8 14v2M0 8h2M14 8h2" stroke="#b388ff" stroke-width="1.2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <div class="logo-text">AGENTIC AI</div>
+        <div class="logo-sub">RESEARCH DASHBOARD</div>
+      </div>
+    </div>
+    <div class="header-center" id="source-label">arXiv + OpenAI + Lil'Log + Google AI</div>
+    <div class="header-right">
+      <div class="live-indicator">
+        <div class="live-dot"></div>
+        LIVE
+      </div>
+      <div class="timestamp" id="last-updated">--:--:-- UTC</div>
+    </div>
+  </header>
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <div class="stat-cell">
+      <div class="stat-label">TOTAL ITEMS</div>
+      <div class="stat-value violet" id="stat-count">—</div>
+      <div class="stat-delta" id="stat-sub">connecting...</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-label">ACTIVE FILTER</div>
+      <div class="stat-value" id="stat-filter">ALL TOPICS</div>
+      <div class="stat-delta" id="stat-filtered">showing all</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-label">LATEST SUBMISSION</div>
+      <div class="stat-value cyan" id="stat-latest">—</div>
+      <div class="stat-delta">published date</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-label">DATA GATEWAY</div>
+      <div class="stat-value indigo" id="stat-gateway">LOCAL EXPRESS</div>
+      <div class="stat-delta" id="stat-gateway-sub">aggregation server</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-label">CACHE STATUS</div>
+      <div class="stat-value" id="stat-cache-status">PENDING</div>
+      <div class="stat-delta" id="stat-next">countdown: —</div>
+    </div>
+  </div>
+
+  <!-- Main Grid Layout -->
+  <div class="main">
+    
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="panel-label">CATEGORIES</div>
+      <div class="filter-group">
+        <div class="filter-item active" data-cat="all" onclick="setCategory('all', this)">
+          <div class="filter-dot" style="background:#b388ff"></div>
+          <span class="filter-name">All topics</span>
+          <span class="filter-count" id="count-all">—</span>
+        </div>
+        <div class="filter-item" data-cat="cs.MA" onclick="setCategory('cs.MA', this)">
+          <div class="filter-dot" style="background:#b388ff"></div>
+          <span class="filter-name">Multiagent (cs.MA)</span>
+          <span class="filter-count" id="count-MA">—</span>
+        </div>
+        <div class="filter-item" data-cat="cs.AI" onclick="setCategory('cs.AI', this)">
+          <div class="filter-dot" style="background:#00e5ff"></div>
+          <span class="filter-name">Artificial Intelligence</span>
+          <span class="filter-count" id="count-AI">—</span>
+        </div>
+        <div class="filter-item" data-cat="cs.CL" onclick="setCategory('cs.CL', this)">
+          <div class="filter-dot" style="background:#8c9eff"></div>
+          <span class="filter-name">NLP / Language (cs.CL)</span>
+          <span class="filter-count" id="count-CL">—</span>
+        </div>
+        <div class="filter-item" data-cat="cs.LG" onclick="setCategory('cs.LG', this)">
+          <div class="filter-dot" style="background:#ff1744"></div>
+          <span class="filter-name">Machine Learning</span>
+          <span class="filter-count" id="count-LG">—</span>
+        </div>
+        <div class="filter-item" data-cat="cs.SE" onclick="setCategory('cs.SE', this)">
+          <div class="filter-dot" style="background:#ff4081"></div>
+          <span class="filter-name">Software Eng (cs.SE)</span>
+          <span class="filter-count" id="count-SE">—</span>
+        </div>
+        <div class="filter-item" data-cat="industry-news" onclick="setCategory('industry-news', this)">
+          <div class="filter-dot" style="background:#eceff1"></div>
+          <span class="filter-name">Industry News</span>
+          <span class="filter-count" id="count-industry">—</span>
+        </div>
+      </div>
+
+      <div class="panel-label" style="margin-top:4px">TOPIC KEYWORDS</div>
+      <div class="filter-group" id="keyword-filters">
+        <div class="filter-item" data-kw="reasoning" onclick="setKeyword('reasoning', this)">
+          <div class="filter-dot" style="background:#b388ff; opacity:0.4"></div>
+          <span class="filter-name">Reasoning &amp; thoughts</span>
+          <span class="filter-count" id="kw-reasoning">—</span>
+        </div>
+        <div class="filter-item" data-kw="planning" onclick="setKeyword('planning', this)">
+          <div class="filter-dot" style="background:#00e5ff; opacity:0.4"></div>
+          <span class="filter-name">Planning &amp; subgoals</span>
+          <span class="filter-count" id="kw-planning">—</span>
+        </div>
+        <div class="filter-item" data-kw="tool" onclick="setKeyword('tool', this)">
+          <div class="filter-dot" style="background:#8c9eff; opacity:0.4"></div>
+          <span class="filter-name">Tool-use &amp; APIs</span>
+          <span class="filter-count" id="kw-tool">—</span>
+        </div>
+        <div class="filter-item" data-kw="multi-agent" onclick="setKeyword('multi-agent', this)">
+          <div class="filter-dot" style="background:#ff1744; opacity:0.4"></div>
+          <span class="filter-name">Multi-agent groups</span>
+          <span class="filter-count" id="kw-multi-agent">—</span>
+        </div>
+        <div class="filter-item" data-kw="memory" onclick="setKeyword('memory', this)">
+          <div class="filter-dot" style="background:#ff4081; opacity:0.4"></div>
+          <span class="filter-name">Memory &amp; RAG consolidation</span>
+          <span class="filter-count" id="kw-memory">—</span>
+        </div>
+        <div class="filter-item" data-kw="safety" onclick="setKeyword('safety', this)">
+          <div class="filter-dot" style="background:#b388ff; opacity:0.4"></div>
+          <span class="filter-name">Safety &amp; alignment</span>
+          <span class="filter-count" id="kw-safety">—</span>
+        </div>
+      </div>
+
+      <div class="panel-label" style="margin-top:4px">SOURCES</div>
+      <div style="padding: 4px 0;">
+        <div class="source-item">
+          <div class="source-dot" style="background:#b388ff"></div>
+          <span class="source-name">arXiv cs.MA</span>
+          <a href="https://arxiv.org/list/cs.MA/recent" target="_blank" class="source-link">↗ open</a>
+        </div>
+        <div class="source-item">
+          <div class="source-dot" style="background:#00e5ff"></div>
+          <span class="source-name">OpenAI News</span>
+          <a href="https://openai.com/news/" target="_blank" class="source-link">↗ open</a>
+        </div>
+        <div class="source-item">
+          <div class="source-dot" style="background:#8c9eff"></div>
+          <span class="source-name">Lil'Log Blog</span>
+          <a href="https://lilianweng.github.io/" target="_blank" class="source-link">↗ open</a>
+        </div>
+        <div class="source-item">
+          <div class="source-dot" style="background:#ff4081"></div>
+          <span class="source-name">Google AI Blog</span>
+          <a href="https://blog.google/technology/ai/" target="_blank" class="source-link">↗ open</a>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Feed -->
+    <main class="feed">
+      <div class="feed-header">
+        <span class="feed-title" id="feed-title-label">LATEST ENTRIES</span>
+        <div class="search-wrap">
+          <span class="search-icon">⌕</span>
+          <input type="text" class="search-input" placeholder="Search title, author, abstract..." id="search-input" oninput="onSearch()">
+        </div>
+        <button class="refresh-btn" id="refresh-btn" onclick="fetchFeedData(true)">
+          <svg id="refresh-icon" width="11" height="11" viewBox="0 0 12 12" fill="none">
+            <path d="M10 6A4 4 0 1 1 6 2V1l2.5 1.5L6 4V3a3 3 0 1 0 3 3h1z" fill="currentColor"/>
+          </svg>
+          REFRESH
+        </button>
+      </div>
+      
+      <!-- Dynamic Feed Container -->
+      <div id="feed-content">
+        <div class="loading-state">
+          <div class="loader-grid">
+            <div class="loader-cell"></div><div class="loader-cell"></div>
+            <div class="loader-cell"></div><div class="loader-cell"></div>
+            <div class="loader-cell"></div><div class="loader-cell"></div>
+            <div class="loader-cell"></div><div class="loader-cell"></div>
+          </div>
+          <div class="loading-text">COMMUNICATING WITH FEED AGGREGATOR SERVER...</div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Detail Panel -->
+    <aside class="detail">
+      <div class="detail-header">ENTRY DESCRIPTION</div>
+      <div id="detail-content">
+        <div class="detail-empty">
+          <div class="detail-empty-icon">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <rect x="3" y="3" width="14" height="16" rx="2" stroke="#5b5578" stroke-width="1.2"/>
+              <path d="M6 7h8M6 10h8M6 13h5" stroke="#5b5578" stroke-width="1.2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="detail-empty-text">SELECT AN ARTICLE OR PAPER<br>TO VIEW DETAILED SPECIFICATIONS</div>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+
+  <!-- Frontend Logic -->
+  <script src="app.js"></script>
+</body>
+</html>
