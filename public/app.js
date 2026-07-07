@@ -101,12 +101,18 @@ function updateCacheStatus(sourceType) {
 function updateCategoryCounts() {
   document.getElementById('count-all').textContent = allFeedItems.length;
   
-  const categories = ['cs.MA', 'cs.AI', 'cs.CL', 'cs.LG', 'cs.SE', 'industry-news'];
+  const categories = ['cs.MA', 'cs.AI', 'cs.CL', 'cs.LG', 'cs.SE', 'industry-news', 'self-improving'];
   categories.forEach(cat => {
     let count = 0;
     if (cat === 'industry-news') {
       count = allFeedItems.filter(item => item.cats.includes('industry-news') || item.source !== 'arXiv').length;
       document.getElementById('count-industry').textContent = count;
+    } else if (cat === 'self-improving') {
+      count = allFeedItems.filter(item => {
+        const matchText = (item.title + ' ' + item.summary).toLowerCase();
+        return matchText.includes('self-improving') || matchText.includes('self-improvement') || matchText.includes('self-correction');
+      }).length;
+      document.getElementById('count-self-improving').textContent = count;
     } else {
       count = allFeedItems.filter(item => item.cats.includes(cat)).length;
       const elId = 'count-' + cat.split('.')[1];
@@ -147,6 +153,11 @@ function applyFilters() {
   if (activeCategory !== 'all') {
     if (activeCategory === 'industry-news') {
       items = items.filter(item => item.cats.includes('industry-news') || item.source !== 'arXiv');
+    } else if (activeCategory === 'self-improving') {
+      items = items.filter(item => {
+        const matchText = (item.title + ' ' + item.summary).toLowerCase();
+        return matchText.includes('self-improving') || matchText.includes('self-improvement') || matchText.includes('self-correction');
+      });
     } else {
       items = items.filter(item => item.cats.includes(activeCategory));
     }

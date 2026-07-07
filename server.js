@@ -10,7 +10,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Combined arXiv query for Agents and Agentic systems across AI, Multi-agent, NLP, ML, and SE
-const ARXIV_COMBINED_QUERY = 'cat:cs.MA OR (cat:cs.AI AND (ti:agent OR ti:agentic OR ti:agents)) OR (cat:cs.CL AND (ti:agent OR ti:agentic OR ti:agents)) OR (cat:cs.LG AND (ti:agent OR ti:agentic OR ti:agents)) OR (cat:cs.SE AND (ti:agent OR ti:agentic OR ti:agents))';
+const ARXIV_COMBINED_QUERY = 'cat:cs.MA OR (cat:cs.AI AND (ti:agent OR ti:agentic OR ti:agents OR ti:"self-improving" OR ti:"self-improvement" OR ti:"self-correction")) OR (cat:cs.CL AND (ti:agent OR ti:agentic OR ti:agents OR ti:"self-improving" OR ti:"self-improvement" OR ti:"self-correction")) OR (cat:cs.LG AND (ti:agent OR ti:agentic OR ti:agents OR ti:"self-improving" OR ti:"self-improvement" OR ti:"self-correction")) OR (cat:cs.SE AND (ti:agent OR ti:agentic OR ti:agents OR ti:"self-improving" OR ti:"self-improvement" OR ti:"self-correction"))';
 
 const RSS_FEEDS = [
   { name: 'OpenAI Newsroom', url: 'https://openai.com/news/rss.xml' },
