@@ -115,7 +115,7 @@ function updateCategoryCounts() {
     }
   });
 
-  const keywords = ['reasoning', 'planning', 'tool', 'multi-agent', 'memory', 'safety'];
+  const keywords = ['reasoning', 'planning', 'tool', 'multi-agent', 'memory', 'safety', 'self-improving'];
   keywords.forEach(kw => {
     const count = allFeedItems.filter(item => {
       const matchText = (item.title + ' ' + item.summary).toLowerCase();

@@ -103,6 +103,18 @@ const FALLBACK_PAPERS = [
     link: 'https://arxiv.org/abs/2505.00112',
     pdfLink: 'https://arxiv.org/pdf/2505.00112',
     source: 'arXiv'
+  },
+  {
+    arxivId: '2505.12345',
+    title: 'Self-Improving Software Agents via Recursive Trajectory Optimization',
+    summary: 'We present a self-improving agent framework that refines its own policy through experience. By analyzing failed trajectories and generating synthetic corrections, the agent recursively updates its prompt templates and system code, showing double-digit gains in task completion over multiple iterations.',
+    published: '2026-05-28T10:00:00Z',
+    updated: '2026-05-28T10:00:00Z',
+    authors: ['Dr. Marcus Vance', 'Sarah Jenkins'],
+    cats: ['cs.AI', 'cs.SE'],
+    link: 'https://arxiv.org/abs/2505.12345',
+    pdfLink: 'https://arxiv.org/pdf/2505.12345',
+    source: 'arXiv'
   }
 ];
 
